@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8"/>
+    <!-- Configuración nativa estricta para iOS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+    <meta name="theme-color" content="#0a0c10" media="(prefers-color-scheme: dark)"/>
+    <meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)"/>
+    
+    <title>Cuentas Claras - RC4</title>
+    
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "media",
+            theme: {
+                extend: {
+                    colors: {
+                        "neo-bg": "#0a0c10",
+                        "neo-surface": "#12161c",
+                        "neo-border": "#1f262e",
+                        "neo-text": "#e2e8f0",
+                        "neo-text-dim": "#8b949e",
+                        "neo-danger": "#ff3366",
+                    },
+                    fontFamily: {
+                        "serif": ["'Playfair Display'", "serif"],
+                        "sans": ["Inter", "sans-serif"],
+                    },
+                }
+            }
+        };
+    </script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; min-height: max(884px, 100dvh); overflow-x: hidden; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        .glass-panel { backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #1f262e; border-radius: 4px; }
+        
+        .fade-transition { transition: opacity 0.3s ease, visibility 0.3s ease; }
+        .oculto-captura { opacity: 0; visibility: hidden; pointer-events: none; height: 0; overflow: hidden; margin: 0; padding: 0;}
+        
+        /* SOLUCIÓN ISLA DINÁMICA: CSS Puro forzado */
+        .ios-safe-top {
+            padding-top: calc(env(safe-area-inset-top) + 1.5rem) !important;
+        }
+        .ios-safe-bottom {
+            padding-bottom: calc(env(safe-area-inset-bottom) + 1.5rem) !important;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen relative bg-gray-50 dark:bg-[#0a0c10] text-gray-900 dark:text-[#e2e8f0]">
+    
+    <!-- PANEL DE INGRESO (Se aplica la clase ios-safe-top) -->
+    <header id="panelIngreso" class="ios-safe-top pb-4 px-6 relative z-10 fade-transition">
+        <div class="absolute inset-0 bg-gradient-to-b from-[#00ff88]/10 to-transparent pointer-events-none"></div>
+        <div class="max-w-md mx-auto relative">
+            <div class="flex items-center gap-3 mb-4 text-emerald-600 dark:text-[#00ff88]">
+                <span class="material-symbols-outlined text-2xl" data-icon="account_balance_wallet">account_balance_wallet</span>
+                <span class="font-sans font-semibold tracking-widest uppercase text-xs">Cuentas Claras</span>
+            </div>
+            
+            <form id="gastoForm" class="flex flex-col gap-3 glass-panel p-4 rounded-xl border border-gray-200 dark:border-neo-border bg-white/70 dark:bg-[#12161c]/70">
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-neo-text-dim text-sm">edit</span>
+                    <input id="conceptoInput" required class="w-full h-12 rounded-lg pl-10 pr-4 font-sans text-sm border border-gray-300 dark:border-neo-border bg-gray-50 dark:bg-black/30 text-gray-900 dark:text-[#e2e8f0] focus:ring-0 focus:border-emerald-500 dark:focus:border-[#00ff88] transition-all" placeholder="Concepto" type="text"/>
+                </div>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-neo-text-dim text-sm">payments</span>
+                    <input id="cantidadInput" required step="0.01" class="w-full h-12 rounded-lg pl-10 pr-4 font-sans text-sm border border-gray-300 dark:border-neo-border bg-gray-50 dark:bg-black/30 text-gray-900 dark:text-[#e2e8f0] focus:ring-0 focus:border-emerald-500 dark:focus:border-[#00ff88] transition-all" placeholder="Cantidad ($)" type="number"/>
+                </div>
+                <div class="relative">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-neo-text-dim text-sm">calendar_today</span>
+                    <input id="fechaInput" required class="w-full h-12 rounded-lg pl-10 pr-4 font-sans text-sm border border-gray-300 dark:border-neo-border bg-gray-50 dark:bg-black/30 text-gray-700 dark:text-neo-text-dim focus:text-gray-900 dark:focus:text-white focus:ring-0 focus:border-emerald-500 dark:focus:border-[#00ff88] transition-all" type="datetime-local"/>
+                </div>
+                <button type="submit" class="w-full h-12 bg-emerald-500 dark:bg-[#00ff88] rounded-lg flex items-center justify-center text-white dark:text-[#0a0c10] font-bold shadow-[0_0_15px_rgba(16,185,129,0.2)] dark:shadow-[0_0_15px_rgba(0,255,136,0.2)] hover:scale-[1.02] transition-transform mt-1">
+                    Registrar Gasto
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <!-- DATA GRID -->
+    <main class="flex-1 px-6 w-full max-w-md mx-auto z-10 relative pt-4 pb-32">
+        <div class="flex justify-between items-end mb-4 border-b border-gray-200 dark:border-neo-border pb-3">
+            <div class="flex-1 min-w-0 pr-4">
+                <div class="flex items-center gap-2 mb-1">
+                    <h2 class="font-sans text-[10px] uppercase tracking-wider text-gray-500 dark:text-neo-text-dim truncate cursor-pointer" id="tituloCuenta">Cuenta Principal</h2>
+                    <button id="btnAjustes" class="text-gray-400 hover:text-emerald-500 dark:hover:text-[#00ff88] transition-colors flex items-center justify-center" title="Ajustes de la cuenta">
+                        <span class="material-symbols-outlined text-[14px]">settings</span>
+                    </button>
+                </div>
+                <h3 class="font-serif text-2xl font-bold text-gray-900 dark:text-white truncate" id="montoBase">120k</h3>
+            </div>
+            <div class="flex gap-4 text-right shrink-0">
+                <div class="text-[10px] text-gray-500 dark:text-neo-text-dim uppercase tracking-wider font-semibold">Cantidad</div>
+                <div class="text-[10px] text-gray-500 dark:text-neo-text-dim uppercase tracking-wider font-semibold">Saldo Disp.</div>
+            </div>
+        </div>
+        
+        <div id="listaTransacciones" class="flex flex-col">
+            <!-- Transacciones JS -->
+        </div>
+    </main>
+
+    <!-- BARRA DE CONTROL (Se aplica la clase ios-safe-bottom) -->
+    <div id="barraControl" class="fixed bottom-0 w-full z-40 bg-gradient-to-t from-gray-50 via-gray-50/90 dark:from-[#0a0c10] dark:via-[#0a0c10]/90 to-transparent pt-12 ios-safe-bottom px-6 fade-transition pointer-events-none">
+        <div class="max-w-md mx-auto flex justify-between items-end relative pointer-events-auto">
+            <nav class="flex gap-2 glass-panel px-3 py-2 rounded-full border border-gray-200 dark:border-neo-border bg-white/70 dark:bg-[#12161c]/70 shadow-lg">
+                <button id="btnCaptura" class="flex items-center justify-center text-gray-500 hover:text-gray-900 dark:text-neo-text-dim dark:hover:text-[#00ff88] transition-colors p-2" title="Modo Captura">
+                    <span class="material-symbols-outlined text-xl" data-icon="screenshot_region">screenshot_region</span>
+                </button>
+                <div class="w-px h-6 bg-gray-300 dark:bg-neo-border my-auto mx-1"></div>
+                <button id="btnImportar" class="flex items-center justify-center text-gray-500 hover:text-gray-900 dark:text-neo-text-dim dark:hover:text-white transition-colors p-2" title="Importar Respaldo">
+                    <span class="material-symbols-outlined text-xl" data-icon="file_upload">file_upload</span>
+                </button>
+                <button id="btnExportar" class="flex items-center justify-center text-gray-500 hover:text-gray-900 dark:text-neo-text-dim dark:hover:text-white transition-colors p-2" title="Exportar Respaldo">
+                    <span class="material-symbols-outlined text-xl" data-icon="file_download">file_download</span>
+                </button>
+                <input type="file" id="inputFile" accept=".json" class="hidden">
+            </nav>
+        </div>
+    </div>
+
+    <!-- MODAL DE AJUSTES -->
+    <div id="modalAjustes" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 px-4">
+        <div class="bg-white dark:bg-neo-surface w-full max-w-sm rounded-2xl border border-gray-200 dark:border-neo-border p-6 shadow-2xl transform scale-95 transition-transform duration-300" id="modalAjustesContent">
+            <div class="flex items-center gap-2 mb-5 text-gray-900 dark:text-white">
+                <span class="material-symbols-outlined">tune</span>
+                <h3 class="text-lg font-bold">Ajustes de Cuenta</h3>
+            </div>
+            
+            <div class="mb-4">
+                <label class="block text-xs font-semibold text-gray-500 dark:text-neo-text-dim mb-1 uppercase tracking-wider">Nombre</label>
+                <input type="text" id="editNombre" class="w-full h-10 rounded-lg px-3 font-sans text-sm border border-gray-300 dark:border-neo-border bg-gray-50 dark:bg-black/30 text-gray-900 dark:text-[#e2e8f0] focus:ring-0 focus:border-emerald-500 dark:focus:border-[#00ff88] transition-all">
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-xs font-semibold text-gray-500 dark:text-neo-text-dim mb-1 uppercase tracking-wider">Fondo Inicial ($)</label>
+                <input type="number" step="0.01" id="editMonto" class="w-full h-10 rounded-lg px-3 font-sans text-sm border border-gray-300 dark:border-neo-border bg-gray-50 dark:bg-black/30 text-gray-900 dark:text-[#e2e8f0] focus:ring-0 focus:border-emerald-500 dark:focus:border-[#00ff88] transition-all">
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <button id="btnGuardarAjustes" class="w-full h-10 bg-emerald-500 dark:bg-[#00ff88] rounded-lg text-white dark:text-[#0a0c10] font-bold text-sm hover:scale-[1.02] transition-transform shadow">Guardar Cambios</button>
+                <button id="btnCerrarAjustes" class="w-full h-10 bg-transparent text-gray-500 dark:text-neo-text-dim font-medium text-sm hover:text-gray-900 dark:hover:text-white transition-colors border border-gray-300 dark:border-neo-border rounded-lg">Cancelar</button>
+                <div class="h-px bg-gray-200 dark:bg-neo-border my-2"></div>
+                <!-- Zona de Peligro -->
+                <button id="btnReiniciarCuenta" class="w-full h-10 bg-red-50 dark:bg-neo-danger/10 text-red-600 dark:text-neo-danger rounded-lg font-bold text-sm hover:bg-red-100 dark:hover:bg-neo-danger/20 transition-colors flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[16px]">delete_forever</span>
+                    Reiniciar Transacciones
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- LÓGICA CORE -->
+    <script>
+        const form = document.getElementById('gastoForm');
+        const conceptoInput = document.getElementById('conceptoInput');
+        const cantidadInput = document.getElementById('cantidadInput');
+        const fechaInput = document.getElementById('fechaInput');
+        const listaTransacciones = document.getElementById('listaTransacciones');
+        
+        const btnExportar = document.getElementById('btnExportar');
+        const btnImportar = document.getElementById('btnImportar');
+        const inputFile = document.getElementById('inputFile');
+        
+        const btnCaptura = document.getElementById('btnCaptura');
+        const panelIngreso = document.getElementById('panelIngreso');
+        const barraControl = document.getElementById('barraControl');
+
+        const modalAjustes = document.getElementById('modalAjustes');
+        const modalAjustesContent = document.getElementById('modalAjustesContent');
+        const btnAjustes = document.getElementById('btnAjustes');
+        const btnCerrarAjustes = document.getElementById('btnCerrarAjustes');
+        const btnGuardarAjustes = document.getElementById('btnGuardarAjustes');
+        const btnReiniciarCuenta = document.getElementById('btnReiniciarCuenta');
+        const editNombre = document.getElementById('editNombre');
+        const editMonto = document.getElementById('editMonto');
+
+        let estadoGlobal = {
+            cuenta_activa_id: "cta_principal",
+            cuentas: [
+                { id: "cta_principal", nombre: "Cuenta Principal", monto_inicial: 120000, transacciones: [] }
+            ]
+        };
+
+        const datosGuardados = localStorage.getItem('cuentas_claras_data');
+        if (datosGuardados) {
+            try {
+                const dataParseada = JSON.parse(datosGuardados);
+                if (dataParseada.cuentas && Array.isArray(dataParseada.cuentas)) {
+                    estadoGlobal = dataParseada;
+                } else if (Array.isArray(dataParseada)) {
+                    estadoGlobal.cuentas[0].transacciones = dataParseada;
+                    localStorage.setItem('cuentas_claras_data', JSON.stringify(estadoGlobal));
+                }
+            } catch (error) { console.error("Error al migrar datos."); }
+        }
+
+        function getCuentaActiva() {
+            return estadoGlobal.cuentas.find(c => c.id === estadoGlobal.cuenta_activa_id);
+        }
+
+        function setFechaActual() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            fechaInput.value = now.toISOString().slice(0, 16);
+        }
+
+        function recalcularYRenderizar() {
+            const cuentaActiva = getCuentaActiva();
+            cuentaActiva.transacciones.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+            let saldoActual = cuentaActiva.monto_inicial;
+            cuentaActiva.transacciones.forEach(t => {
+                saldoActual -= t.cantidad;
+                t.saldoDisponible = saldoActual;
+            });
+
+            localStorage.setItem('cuentas_claras_data', JSON.stringify(estadoGlobal));
+            listaTransacciones.innerHTML = '';
+            
+            document.getElementById('tituloCuenta').textContent = cuentaActiva.nombre;
+            document.getElementById('montoBase').textContent = '$' + cuentaActiva.monto_inicial.toLocaleString('en-US');
+
+            const transaccionesMostrar = [...cuentaActiva.transacciones].reverse();
+
+            if (transaccionesMostrar.length === 0) {
+                listaTransacciones.innerHTML = '<div class="py-6 text-center text-gray-500 dark:text-neo-text-dim text-sm italic">Tu estado de cuenta está limpio.</div>';
+                return;
+            }
+
+            transaccionesMostrar.forEach(t => {
+                const dateObj = new Date(t.fecha);
+                const timeString = dateObj.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit', hour12: true }).toUpperCase();
+
+                let icon = 'receipt_long';
+                const lowerConcepto = t.concepto.toLowerCase();
+                if (lowerConcepto.includes('almuerzo') || lowerConcepto.includes('comida')) icon = 'restaurant';
+                else if (lowerConcepto.includes('transporte') || lowerConcepto.includes('uber')) icon = 'directions_bus';
+                else if (lowerConcepto.includes('super') || lowerConcepto.includes('oxxo')) icon = 'shopping_cart';
+
+                const tr = document.createElement('div');
+                tr.className = "py-3 border-b border-gray-100 dark:border-neo-border/50 flex items-center justify-between group hover:bg-gray-100 dark:hover:bg-white/[0.02] transition-colors -mx-2 px-2 rounded-lg gap-3";
+                tr.innerHTML = `
+                    <div class="flex items-center gap-3 flex-1 min-w-0">
+                        <div class="w-8 h-8 rounded-full bg-white dark:bg-neo-surface border border-gray-200 dark:border-neo-border flex items-center justify-center text-gray-700 dark:text-neo-text shrink-0">
+                            <span class="material-symbols-outlined text-[16px]" data-icon="${icon}">${icon}</span>
+                        </div>
+                        <div class="flex-1 min-w-0 pr-1">
+                            <h4 class="font-sans text-sm font-medium text-gray-900 dark:text-white leading-tight truncate">${t.concepto}</h4>
+                            <span class="font-sans text-[10px] text-gray-500 dark:text-neo-text-dim block truncate">${timeString}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center shrink-0 gap-2">
+                        <div class="text-right">
+                            <p class="font-sans text-sm font-bold text-red-600 dark:text-neo-danger">
+                                -$${t.cantidad.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                            </p>
+                            <p class="font-sans text-sm font-medium text-gray-700 dark:text-neo-text">
+                                $${t.saldoDisponible.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
+                            </p>
+                        </div>
+                        <button onclick="eliminarRegistro('${t.id}')" class="btn-eliminar text-gray-300 hover:text-red-500 dark:text-neo-border dark:hover:text-neo-danger transition-all p-1 flex items-center justify-center rounded" title="Eliminar registro">
+                            <span class="material-symbols-outlined text-[18px]">close</span>
+                        </button>
+                    </div>
+                `;
+                listaTransacciones.appendChild(tr);
+            });
+        }
+
+        window.eliminarRegistro = function(idTransaccion) {
+            if (confirm("¿Estás seguro de eliminar este gasto? El saldo se recalculará automáticamente.")) {
+                const cuentaActiva = getCuentaActiva();
+                cuentaActiva.transacciones = cuentaActiva.transacciones.filter(t => t.id !== idTransaccion);
+                recalcularYRenderizar();
+            }
+        };
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const cantidad = parseFloat(cantidadInput.value);
+            const cuentaActiva = getCuentaActiva();
+
+            if (isNaN(cantidad) || cantidad <= 0) {
+                alert("Por favor ingresa una cantidad válida mayor a 0.");
+                return;
+            }
+            if (cantidad > cuentaActiva.monto_inicial) {
+                alert(`Error: El gasto supera el fondo disponible ($${cuentaActiva.monto_inicial.toLocaleString()}).`);
+                return;
+            }
+
+            const nuevoGasto = {
+                id: Date.now().toString(),
+                concepto: conceptoInput.value.trim(),
+                cantidad: cantidad,
+                fecha: fechaInput.value
+            };
+
+            cuentaActiva.transacciones.push(nuevoGasto);
+            recalcularYRenderizar();
+            
+            conceptoInput.value = '';
+            cantidadInput.value = '';
+            setFechaActual();
+            conceptoInput.blur(); 
+        });
+
+        function abrirModal() {
+            const cuenta = getCuentaActiva();
+            editNombre.value = cuenta.nombre;
+            editMonto.value = cuenta.monto_inicial;
+            
+            modalAjustes.classList.remove('opacity-0', 'pointer-events-none');
+            modalAjustesContent.classList.remove('scale-95');
+            modalAjustesContent.classList.add('scale-100');
+        }
+
+        function cerrarModal() {
+            modalAjustes.classList.add('opacity-0', 'pointer-events-none');
+            modalAjustesContent.classList.remove('scale-100');
+            modalAjustesContent.classList.add('scale-95');
+        }
+
+        btnAjustes.addEventListener('click', (e) => {
+            e.stopPropagation();
+            abrirModal();
+        });
+        
+        btnCerrarAjustes.addEventListener('click', cerrarModal);
+
+        btnGuardarAjustes.addEventListener('click', () => {
+            const cuenta = getCuentaActiva();
+            const nuevoNombre = editNombre.value.trim();
+            const nuevoMonto = parseFloat(editMonto.value);
+
+            if (!nuevoNombre || isNaN(nuevoMonto) || nuevoMonto < 0) {
+                alert("Por favor ingresa un nombre y un fondo inicial válidos.");
+                return;
+            }
+
+            cuenta.nombre = nuevoNombre;
+            cuenta.monto_inicial = nuevoMonto;
+            
+            recalcularYRenderizar();
+            cerrarModal();
+        });
+
+        btnReiniciarCuenta.addEventListener('click', () => {
+            if (confirm("⚠️ ¿Estás seguro de que deseas eliminar TODAS las transacciones de esta cuenta? Esta acción no se puede deshacer.")) {
+                const cuenta = getCuentaActiva();
+                cuenta.transacciones = [];
+                recalcularYRenderizar();
+                cerrarModal();
+            }
+        });
+
+        btnCaptura.addEventListener('click', (e) => {
+            e.stopPropagation(); 
+            panelIngreso.classList.add('oculto-captura');
+            barraControl.classList.add('oculto-captura');
+            
+            document.querySelectorAll('.btn-eliminar').forEach(btn => {
+                btn.style.opacity = '0';
+                btn.style.pointerEvents = 'none';
+            });
+        });
+
+        document.addEventListener('click', (e) => {
+            if (panelIngreso.classList.contains('oculto-captura') && !modalAjustesContent.contains(e.target)) {
+                panelIngreso.classList.remove('oculto-captura');
+                barraControl.classList.remove('oculto-captura');
+                
+                document.querySelectorAll('.btn-eliminar').forEach(btn => {
+                    btn.style.opacity = '1';
+                    btn.style.pointerEvents = 'auto';
+                });
+            }
+        });
+
+        btnExportar.addEventListener('click', () => {
+            const dataStr = JSON.stringify(estadoGlobal, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `cuentas_claras_${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        btnImportar.addEventListener('click', () => inputFile.click());
+
+        inputFile.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const json = JSON.parse(event.target.result);
+                    if (json.cuentas && json.cuenta_activa_id) {
+                        estadoGlobal = json;
+                        recalcularYRenderizar();
+                        alert("Datos cargados con éxito.");
+                    } else throw new Error();
+                } catch (error) { alert("Archivo inválido."); }
+                inputFile.value = '';
+            };
+            reader.readAsText(file);
+        });
+
+        setFechaActual();
+        recalcularYRenderizar();
+    </script>
+</body>
+</html>

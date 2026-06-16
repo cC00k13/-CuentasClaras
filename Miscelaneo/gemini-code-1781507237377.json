@@ -1,0 +1,17 @@
+{
+  "cuenta_activa_id": "cta_001",
+  "cuentas": [
+    {
+      "id": "cta_001",
+      "nombre": "Cuenta Principal",
+      "monto_inicial": 120000,
+      "transacciones": [ ... ]
+    },
+    {
+      "id": "cta_002",
+      "nombre": "Ahorro Personal",
+      "monto_inicial": 0,
+      "transacciones": [ ... ]
+    }
+  ]
+}
