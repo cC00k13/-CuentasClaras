@@ -83,25 +83,25 @@
 
     <main class="flex-1 px-6 w-full max-w-md mx-auto z-10 relative pt-4 pb-32">
         
-        <div class="mb-5 px-2">
+        <div class="mb-5 px-2 flex flex-col">
             <div class="flex items-center gap-2 mb-1">
                 <h2 class="font-sans text-[10px] uppercase tracking-wider text-gray-500 dark:text-neo-text-dim truncate cursor-pointer" id="tituloCuenta">Cuenta Principal</h2>
                 <button id="btnAjustes" class="text-gray-400 hover:text-emerald-500 dark:hover:text-[#00ff88] transition-colors flex items-center justify-center" title="Gestionar Cuentas">
                     <span class="material-symbols-outlined text-[14px]">expand_more</span>
                 </button>
             </div>
-            <h3 class="font-serif text-[32px] leading-tight font-bold text-gray-900 dark:text-white flex items-baseline gap-1" id="montoBase">
+            <h3 class="font-serif text-[32px] leading-tight font-bold text-gray-900 dark:text-white flex flex-wrap items-baseline gap-1" id="montoBase">
             </h3>
         </div>
         
-        <div class="flex items-center justify-between px-5 pb-2 mb-3 border-b border-gray-200 dark:border-neo-border">
+        <div class="flex items-center justify-between px-4 pb-2 mb-3 border-b border-gray-200 dark:border-neo-border">
             <div class="text-[10px] text-gray-500 dark:text-neo-text-dim uppercase tracking-wider font-semibold">Movimientos</div>
             <div class="flex items-center shrink-0 gap-2">
                 <div class="flex gap-4 text-right">
                     <div class="text-[10px] text-gray-500 dark:text-neo-text-dim uppercase tracking-wider font-semibold min-w-[70px]">Cantidad</div>
                     <div class="text-[10px] text-gray-500 dark:text-neo-text-dim uppercase tracking-wider font-semibold min-w-[85px]">Saldo Disp.</div>
                 </div>
-                <div class="w-[25px] opacity-0 pointer-events-none"></div>
+                <div class="w-[28px] opacity-0 pointer-events-none"></div>
             </div>
         </div>
         
@@ -196,11 +196,10 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <div id="modalDescripcion" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 px-4">
+    <div id="modalDescripcion" class="fixed inset-0 z-50 flex items-start justify-center pt-[10vh] bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 px-4">
         <div class="bg-white dark:bg-neo-surface w-full max-w-md rounded-2xl border border-gray-200 dark:border-neo-border p-6 shadow-2xl transform scale-95 transition-transform duration-300" id="modalDescripcionContent">
             <div class="flex items-center justify-between mb-4 text-gray-900 dark:text-white">
                 <h3 class="text-lg font-bold flex items-center gap-2">
@@ -312,7 +311,8 @@
             listaTransacciones.innerHTML = '';
             
             document.getElementById('tituloCuenta').textContent = cuentaActiva.nombre;
-            document.getElementById('montoBase').innerHTML = `<span class="text-[20px] font-sans opacity-60 font-medium pb-1">$</span><span>${cuentaActiva.monto_inicial.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`;
+            // CORRECCIÓN: Inyección con break-all para asegurar que números gigantes no rompan el layout
+            document.getElementById('montoBase').innerHTML = `<span class="text-[20px] font-sans opacity-60 font-medium pb-1 shrink-0">$</span><span class="break-all">${cuentaActiva.monto_inicial.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`;
 
             const resumenEl = document.getElementById('resumenCuenta');
             if (cuentaActiva.transacciones.length > 0) {
@@ -355,16 +355,16 @@
 
                 tr.innerHTML = `
                     <div class="flex items-center justify-between gap-3 w-full">
-                        <div class="flex items-center gap-3 flex-1 min-w-0">
-                            <div class="w-9 h-9 rounded-full bg-white/80 dark:bg-neo-bg border border-gray-200 dark:border-neo-border flex items-center justify-center text-gray-700 dark:text-neo-text shrink-0">
+                        <div class="flex items-center gap-3 flex-1 min-w-0 items-start">
+                            <div class="w-9 h-9 rounded-full bg-white/80 dark:bg-neo-bg border border-gray-200 dark:border-neo-border flex items-center justify-center text-gray-700 dark:text-neo-text shrink-0 mt-0.5">
                                 <span class="material-symbols-outlined text-[18px]" data-icon="${icon}">${icon}</span>
                             </div>
                             <div class="flex-1 min-w-0 pr-1">
-                                <h4 class="font-sans text-sm font-semibold text-gray-950 dark:text-white leading-tight truncate">${t.concepto}</h4>
-                                <span class="font-sans text-[10px] text-gray-500 dark:text-neo-text-dim block truncate">${timeString}</span>
+                                <h4 class="font-sans text-sm font-semibold text-gray-950 dark:text-white leading-snug break-words whitespace-normal">${t.concepto}</h4>
+                                <span class="font-sans text-[10px] text-gray-500 dark:text-neo-text-dim block mt-0.5">${timeString}</span>
                             </div>
                         </div>
-                        <div class="flex items-center shrink-0 gap-2">
+                        <div class="flex items-center shrink-0 gap-2 self-start mt-0.5">
                             <div class="flex gap-4 text-right">
                                 <div class="min-w-[70px] flex justify-end items-baseline gap-[2px]">
                                     <span class="text-[11px] font-bold text-red-500 dark:text-neo-danger opacity-80 font-sans">-$</span>
@@ -516,7 +516,6 @@
             }
         };
 
-        // CORRECCIÓN 2: Animaciones del modal ajustadas a scale en lugar de slide para el centro de la pantalla
         function abrirModalDescripcion(idTransaccion) {
             const cuentaActiva = getCuentaActiva();
             transaccionActivaDesc = cuentaActiva.transacciones.find(t => t.id === idTransaccion);
