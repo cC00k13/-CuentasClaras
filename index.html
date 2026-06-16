@@ -2,17 +2,16 @@
 <html lang="es">
 <head>
     <meta charset="utf-8"/>
-    <!-- Configuración nativa estricta para iOS -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
     <meta name="apple-mobile-web-app-capable" content="yes"/>
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
     <meta name="theme-color" content="#0a0c10" media="(prefers-color-scheme: dark)"/>
     <meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)"/>
     
-    <title>Cuentas Claras - RC4</title>
+    <title>Cuentas Claras - Fase C</title>
     
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     
     <script id="tailwind-config">
@@ -29,8 +28,8 @@
                         "neo-danger": "#ff3366",
                     },
                     fontFamily: {
-                        "serif": ["'Playfair Display'", "serif"],
                         "sans": ["Inter", "sans-serif"],
+                        "serif": ["'Playfair Display'", "serif"],
                     },
                 }
             }
@@ -48,18 +47,12 @@
         .fade-transition { transition: opacity 0.3s ease, visibility 0.3s ease; }
         .oculto-captura { opacity: 0; visibility: hidden; pointer-events: none; height: 0; overflow: hidden; margin: 0; padding: 0;}
         
-        /* SOLUCIÓN ISLA DINÁMICA: CSS Puro forzado */
-        .ios-safe-top {
-            padding-top: calc(env(safe-area-inset-top) + 1.5rem) !important;
-        }
-        .ios-safe-bottom {
-            padding-bottom: calc(env(safe-area-inset-bottom) + 1.5rem) !important;
-        }
+        .ios-safe-top { padding-top: calc(env(safe-area-inset-top) + 1.5rem) !important; }
+        .ios-safe-bottom { padding-bottom: calc(env(safe-area-inset-bottom) + 1.5rem) !important; }
     </style>
 </head>
 <body class="flex flex-col min-h-screen relative bg-gray-50 dark:bg-[#0a0c10] text-gray-900 dark:text-[#e2e8f0]">
     
-    <!-- PANEL DE INGRESO (Se aplica la clase ios-safe-top) -->
     <header id="panelIngreso" class="ios-safe-top pb-4 px-6 relative z-10 fade-transition">
         <div class="absolute inset-0 bg-gradient-to-b from-[#00ff88]/10 to-transparent pointer-events-none"></div>
         <div class="max-w-md mx-auto relative">
@@ -88,30 +81,43 @@
         </div>
     </header>
 
-    <!-- DATA GRID -->
     <main class="flex-1 px-6 w-full max-w-md mx-auto z-10 relative pt-4 pb-32">
-        <div class="flex justify-between items-end mb-4 border-b border-gray-200 dark:border-neo-border pb-3">
+        <div class="flex justify-between items-end mb-4 border-b border-gray-200 dark:border-neo-border pb-3 px-2">
             <div class="flex-1 min-w-0 pr-4">
                 <div class="flex items-center gap-2 mb-1">
                     <h2 class="font-sans text-[10px] uppercase tracking-wider text-gray-500 dark:text-neo-text-dim truncate cursor-pointer" id="tituloCuenta">Cuenta Principal</h2>
-                    <button id="btnAjustes" class="text-gray-400 hover:text-emerald-500 dark:hover:text-[#00ff88] transition-colors flex items-center justify-center" title="Ajustes de la cuenta">
-                        <span class="material-symbols-outlined text-[14px]">settings</span>
+                    <button id="btnAjustes" class="text-gray-400 hover:text-emerald-500 dark:hover:text-[#00ff88] transition-colors flex items-center justify-center" title="Gestionar Cuentas">
+                        <span class="material-symbols-outlined text-[14px]">expand_more</span>
                     </button>
                 </div>
-                <h3 class="font-serif text-2xl font-bold text-gray-900 dark:text-white truncate" id="montoBase">120k</h3>
+                <h3 class="font-serif text-[28px] leading-tight font-bold text-gray-900 dark:text-white truncate flex items-baseline gap-1" id="montoBase">
+                </h3>
             </div>
-            <div class="flex gap-4 text-right shrink-0">
-                <div class="text-[10px] text-gray-500 dark:text-neo-text-dim uppercase tracking-wider font-semibold">Cantidad</div>
-                <div class="text-[10px] text-gray-500 dark:text-neo-text-dim uppercase tracking-wider font-semibold">Saldo Disp.</div>
+            <div class="flex gap-4 text-right shrink-0 pr-8">
+                <div class="text-[10px] text-gray-500 dark:text-neo-text-dim uppercase tracking-wider font-semibold min-w-[70px]">Cantidad</div>
+                <div class="text-[10px] text-gray-500 dark:text-neo-text-dim uppercase tracking-wider font-semibold min-w-[85px]">Saldo Disp.</div>
             </div>
         </div>
         
-        <div id="listaTransacciones" class="flex flex-col">
-            <!-- Transacciones JS -->
+        <div id="listaTransacciones" class="flex flex-col gap-3">
+            </div>
+
+        <div id="resumenCuenta" class="mt-8 pt-4 border-t border-gray-300 dark:border-neo-border flex justify-between items-end hidden px-2">
+            <div class="flex-1">
+                <p class="font-sans text-[13px] text-gray-500 dark:text-neo-text-dim mb-1">Total gastado</p>
+                <p class="font-serif text-[22px] leading-none font-bold text-red-600 dark:text-neo-danger drop-shadow-[0_0_8px_rgba(255,51,102,0.2)] flex items-baseline gap-[2px]">
+                    <span class="font-sans text-sm opacity-60">$</span><span id="totalGastado">0.00</span>
+                </p>
+            </div>
+            <div class="flex-1 text-right">
+                <p class="font-sans text-[13px] text-gray-500 dark:text-neo-text-dim mb-1">Saldo disponible</p>
+                <p class="font-serif text-[22px] leading-none font-bold text-gray-900 dark:text-white flex items-baseline justify-end gap-[2px]">
+                    <span class="font-sans text-sm opacity-60">$</span><span id="saldoFinal">0.00</span>
+                </p>
+            </div>
         </div>
     </main>
 
-    <!-- BARRA DE CONTROL (Se aplica la clase ios-safe-bottom) -->
     <div id="barraControl" class="fixed bottom-0 w-full z-40 bg-gradient-to-t from-gray-50 via-gray-50/90 dark:from-[#0a0c10] dark:via-[#0a0c10]/90 to-transparent pt-12 ios-safe-bottom px-6 fade-transition pointer-events-none">
         <div class="max-w-md mx-auto flex justify-between items-end relative pointer-events-auto">
             <nav class="flex gap-2 glass-panel px-3 py-2 rounded-full border border-gray-200 dark:border-neo-border bg-white/70 dark:bg-[#12161c]/70 shadow-lg">
@@ -130,38 +136,85 @@
         </div>
     </div>
 
-    <!-- MODAL DE AJUSTES -->
-    <div id="modalAjustes" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 px-4">
-        <div class="bg-white dark:bg-neo-surface w-full max-w-sm rounded-2xl border border-gray-200 dark:border-neo-border p-6 shadow-2xl transform scale-95 transition-transform duration-300" id="modalAjustesContent">
-            <div class="flex items-center gap-2 mb-5 text-gray-900 dark:text-white">
-                <span class="material-symbols-outlined">tune</span>
-                <h3 class="text-lg font-bold">Ajustes de Cuenta</h3>
-            </div>
+    <div id="modalCuentas" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 px-4">
+        <div class="bg-white dark:bg-neo-surface w-full max-w-md sm:rounded-2xl rounded-t-2xl border border-gray-200 dark:border-neo-border p-6 pb-12 sm:pb-6 shadow-2xl transform translate-y-full sm:translate-y-0 sm:scale-95 transition-all duration-300 overflow-hidden relative" id="modalCuentasContent">
             
-            <div class="mb-4">
-                <label class="block text-xs font-semibold text-gray-500 dark:text-neo-text-dim mb-1 uppercase tracking-wider">Nombre</label>
-                <input type="text" id="editNombre" class="w-full h-10 rounded-lg px-3 font-sans text-sm border border-gray-300 dark:border-neo-border bg-gray-50 dark:bg-black/30 text-gray-900 dark:text-[#e2e8f0] focus:ring-0 focus:border-emerald-500 dark:focus:border-[#00ff88] transition-all">
-            </div>
-            
-            <div class="mb-6">
-                <label class="block text-xs font-semibold text-gray-500 dark:text-neo-text-dim mb-1 uppercase tracking-wider">Fondo Inicial ($)</label>
-                <input type="number" step="0.01" id="editMonto" class="w-full h-10 rounded-lg px-3 font-sans text-sm border border-gray-300 dark:border-neo-border bg-gray-50 dark:bg-black/30 text-gray-900 dark:text-[#e2e8f0] focus:ring-0 focus:border-emerald-500 dark:focus:border-[#00ff88] transition-all">
-            </div>
-
-            <div class="flex flex-col gap-2">
-                <button id="btnGuardarAjustes" class="w-full h-10 bg-emerald-500 dark:bg-[#00ff88] rounded-lg text-white dark:text-[#0a0c10] font-bold text-sm hover:scale-[1.02] transition-transform shadow">Guardar Cambios</button>
-                <button id="btnCerrarAjustes" class="w-full h-10 bg-transparent text-gray-500 dark:text-neo-text-dim font-medium text-sm hover:text-gray-900 dark:hover:text-white transition-colors border border-gray-300 dark:border-neo-border rounded-lg">Cancelar</button>
-                <div class="h-px bg-gray-200 dark:bg-neo-border my-2"></div>
-                <!-- Zona de Peligro -->
-                <button id="btnReiniciarCuenta" class="w-full h-10 bg-red-50 dark:bg-neo-danger/10 text-red-600 dark:text-neo-danger rounded-lg font-bold text-sm hover:bg-red-100 dark:hover:bg-neo-danger/20 transition-colors flex items-center justify-center gap-2">
-                    <span class="material-symbols-outlined text-[16px]">delete_forever</span>
-                    Reiniciar Transacciones
+            <div id="vistaListaCuentas" class="transition-transform duration-300 translate-x-0">
+                <div class="flex items-center justify-between mb-5 text-gray-900 dark:text-white">
+                    <h3 class="text-lg font-bold flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">account_balance_wallet</span>
+                        Mis Cuentas
+                    </h3>
+                    <button onclick="cerrarModalCuentas()" class="text-gray-400 hover:text-red-500 transition-colors">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                
+                <div id="listaCuentasContainer" class="flex flex-col gap-2 max-h-60 overflow-y-auto mb-4 pr-1">
+                    </div>
+                
+                <button onclick="abrirFormularioCuenta(null)" class="w-full h-12 border border-dashed border-gray-300 dark:border-neo-border rounded-lg text-gray-600 dark:text-neo-text-dim hover:text-emerald-500 dark:hover:text-[#00ff88] hover:border-emerald-500 dark:hover:border-[#00ff88] font-bold transition-colors flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[20px]">add</span>
+                    Añadir nueva cuenta
                 </button>
             </div>
+
+            <div id="vistaFormCuenta" class="absolute inset-0 p-6 bg-white dark:bg-neo-surface transition-transform duration-300 translate-x-full overflow-y-auto">
+                <div class="flex items-center gap-2 mb-5 text-gray-900 dark:text-white">
+                    <button onclick="volverAListaCuentas()" class="text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors mt-1">
+                        <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+                    </button>
+                    <h3 class="text-lg font-bold" id="tituloFormCuenta">Editar Cuenta</h3>
+                </div>
+                
+                <input type="hidden" id="editCuentaId">
+                
+                <div class="mb-4">
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-neo-text-dim mb-1 uppercase tracking-wider">Nombre</label>
+                    <input type="text" id="editNombre" class="w-full h-10 rounded-lg px-3 font-sans text-sm border border-gray-300 dark:border-neo-border bg-gray-50 dark:bg-black/30 text-gray-900 dark:text-[#e2e8f0] focus:ring-0 focus:border-emerald-500 dark:focus:border-[#00ff88] transition-all">
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-neo-text-dim mb-1 uppercase tracking-wider">Fondo Inicial ($)</label>
+                    <input type="number" step="0.01" id="editMonto" class="w-full h-10 rounded-lg px-3 font-sans text-sm border border-gray-300 dark:border-neo-border bg-gray-50 dark:bg-black/30 text-gray-900 dark:text-[#e2e8f0] focus:ring-0 focus:border-emerald-500 dark:focus:border-[#00ff88] transition-all">
+                </div>
+
+                <div class="flex flex-col gap-2">
+                    <button onclick="guardarCuenta()" class="w-full h-10 bg-emerald-500 dark:bg-[#00ff88] rounded-lg text-white dark:text-[#0a0c10] font-bold text-sm hover:scale-[1.02] transition-transform shadow">Guardar Cambios</button>
+                    
+                    <div id="zonaPeligroCuenta" class="mt-2 pt-2 border-t border-gray-200 dark:border-neo-border">
+                        <button onclick="eliminarCuentaActualForm()" class="w-full h-10 bg-red-50 dark:bg-neo-danger/10 text-red-600 dark:text-neo-danger rounded-lg font-bold text-sm hover:bg-red-100 dark:hover:bg-neo-danger/20 transition-colors flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-[16px]">delete</span>
+                            Eliminar Cuenta
+                        </button>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 
-    <!-- LÓGICA CORE -->
+    <div id="modalDescripcion" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 px-4">
+        <div class="bg-white dark:bg-neo-surface w-full max-w-md sm:rounded-2xl rounded-t-2xl border border-gray-200 dark:border-neo-border p-6 pb-12 sm:pb-6 shadow-2xl transform translate-y-full sm:translate-y-0 sm:scale-95 transition-transform duration-300" id="modalDescripcionContent">
+            <div class="flex items-center justify-between mb-4 text-gray-900 dark:text-white">
+                <h3 class="text-lg font-bold flex items-center gap-2">
+                    <span class="material-symbols-outlined text-[20px]">edit_note</span>
+                    Notas del Gasto
+                </h3>
+                <button id="btnCerrarDescripcion" class="text-gray-400 hover:text-red-500 transition-colors">
+                    <span class="material-symbols-outlined">close</span>
+                </button>
+            </div>
+            
+            <p class="text-xs text-gray-500 dark:text-neo-text-dim mb-3">Añade contexto, detalles o justificaciones para esta transacción.</p>
+            <textarea id="editDescripcionTexto" class="w-full h-32 rounded-xl p-3 font-sans text-sm border border-gray-300 dark:border-neo-border bg-gray-50 dark:bg-black/30 text-gray-900 dark:text-[#e2e8f0] focus:ring-0 focus:border-emerald-500 dark:focus:border-[#00ff88] transition-all resize-none" placeholder="Ej: Este cobro fue realizado por razones de..."></textarea>
+            
+            <button id="btnGuardarDescripcion" class="w-full h-12 mt-4 bg-emerald-500 dark:bg-[#00ff88] rounded-lg text-white dark:text-[#0a0c10] font-bold shadow hover:scale-[1.02] transition-transform">
+                Guardar Descripción
+            </button>
+        </div>
+    </div>
+
     <script>
         const form = document.getElementById('gastoForm');
         const conceptoInput = document.getElementById('conceptoInput');
@@ -177,14 +230,27 @@
         const panelIngreso = document.getElementById('panelIngreso');
         const barraControl = document.getElementById('barraControl');
 
-        const modalAjustes = document.getElementById('modalAjustes');
-        const modalAjustesContent = document.getElementById('modalAjustesContent');
+        // Modal de Cuentas (Fase C)
+        const modalCuentas = document.getElementById('modalCuentas');
+        const modalCuentasContent = document.getElementById('modalCuentasContent');
+        const vistaListaCuentas = document.getElementById('vistaListaCuentas');
+        const vistaFormCuenta = document.getElementById('vistaFormCuenta');
+        const listaCuentasContainer = document.getElementById('listaCuentasContainer');
         const btnAjustes = document.getElementById('btnAjustes');
-        const btnCerrarAjustes = document.getElementById('btnCerrarAjustes');
-        const btnGuardarAjustes = document.getElementById('btnGuardarAjustes');
-        const btnReiniciarCuenta = document.getElementById('btnReiniciarCuenta');
+        
+        const editCuentaId = document.getElementById('editCuentaId');
         const editNombre = document.getElementById('editNombre');
         const editMonto = document.getElementById('editMonto');
+        const tituloFormCuenta = document.getElementById('tituloFormCuenta');
+        const zonaPeligroCuenta = document.getElementById('zonaPeligroCuenta');
+
+        // Modal Descripción
+        const modalDescripcion = document.getElementById('modalDescripcion');
+        const modalDescripcionContent = document.getElementById('modalDescripcionContent');
+        const btnCerrarDescripcion = document.getElementById('btnCerrarDescripcion');
+        const btnGuardarDescripcion = document.getElementById('btnGuardarDescripcion');
+        const editDescripcionTexto = document.getElementById('editDescripcionTexto');
+        let transaccionActivaDesc = null;
 
         let estadoGlobal = {
             cuenta_activa_id: "cta_principal",
@@ -193,6 +259,7 @@
             ]
         };
 
+        // Carga de datos
         const datosGuardados = localStorage.getItem('cuentas_claras_data');
         if (datosGuardados) {
             try {
@@ -206,8 +273,13 @@
             } catch (error) { console.error("Error al migrar datos."); }
         }
 
+        // Utilidades de Cálculo
         function getCuentaActiva() {
-            return estadoGlobal.cuentas.find(c => c.id === estadoGlobal.cuenta_activa_id);
+            return estadoGlobal.cuentas.find(c => c.id === estadoGlobal.cuenta_activa_id) || estadoGlobal.cuentas[0];
+        }
+
+        function calcularSaldoDeCuenta(cuenta) {
+            return cuenta.monto_inicial - cuenta.transacciones.reduce((sum, t) => sum + t.cantidad, 0);
         }
 
         function setFechaActual() {
@@ -216,13 +288,23 @@
             fechaInput.value = now.toISOString().slice(0, 16);
         }
 
+        // Renderizado Principal
         function recalcularYRenderizar() {
             const cuentaActiva = getCuentaActiva();
+            
+            // Reparación por si se borró la cuenta activa
+            if(estadoGlobal.cuenta_activa_id !== cuentaActiva.id) {
+                estadoGlobal.cuenta_activa_id = cuentaActiva.id;
+            }
+
             cuentaActiva.transacciones.sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
 
             let saldoActual = cuentaActiva.monto_inicial;
+            let totalGastado = 0;
+
             cuentaActiva.transacciones.forEach(t => {
                 saldoActual -= t.cantidad;
+                totalGastado += t.cantidad;
                 t.saldoDisponible = saldoActual;
             });
 
@@ -230,12 +312,21 @@
             listaTransacciones.innerHTML = '';
             
             document.getElementById('tituloCuenta').textContent = cuentaActiva.nombre;
-            document.getElementById('montoBase').textContent = '$' + cuentaActiva.monto_inicial.toLocaleString('en-US');
+            document.getElementById('montoBase').innerHTML = `<span class="text-[20px] font-sans opacity-60 font-medium pb-1">$</span><span>${cuentaActiva.monto_inicial.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>`;
+
+            const resumenEl = document.getElementById('resumenCuenta');
+            if (cuentaActiva.transacciones.length > 0) {
+                resumenEl.classList.remove('hidden');
+                document.getElementById('totalGastado').textContent = totalGastado.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                document.getElementById('saldoFinal').textContent = saldoActual.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            } else {
+                resumenEl.classList.add('hidden');
+            }
 
             const transaccionesMostrar = [...cuentaActiva.transacciones].reverse();
 
             if (transaccionesMostrar.length === 0) {
-                listaTransacciones.innerHTML = '<div class="py-6 text-center text-gray-500 dark:text-neo-text-dim text-sm italic">Tu estado de cuenta está limpio.</div>';
+                listaTransacciones.innerHTML = '<div class="py-12 text-center text-gray-500 dark:text-neo-text-dim text-sm italic">Esta cuenta no tiene movimientos.</div>';
                 return;
             }
 
@@ -249,36 +340,184 @@
                 else if (lowerConcepto.includes('transporte') || lowerConcepto.includes('uber')) icon = 'directions_bus';
                 else if (lowerConcepto.includes('super') || lowerConcepto.includes('oxxo')) icon = 'shopping_cart';
 
+                const bloqueDescripcion = t.descripcion ? `
+                    <div class="w-full mt-2 pt-1 flex justify-center">
+                        <div class="w-1/4 border-t border-gray-100 dark:border-neo-border/20"></div>
+                    </div>
+                    <div class="w-full pt-1 px-1">
+                        <p class="font-sans text-xs text-gray-500 dark:text-neo-text-dim leading-relaxed whitespace-pre-wrap text-center">${t.descripcion}</p>
+                    </div>
+                ` : '';
+
                 const tr = document.createElement('div');
-                tr.className = "py-3 border-b border-gray-100 dark:border-neo-border/50 flex items-center justify-between group hover:bg-gray-100 dark:hover:bg-white/[0.02] transition-colors -mx-2 px-2 rounded-lg gap-3";
+                // Corrección de pildora a rectángulo redondeado aplicado aquí
+                tr.className = "glass-panel rounded-2xl border border-gray-200 dark:border-neo-border bg-white/70 dark:bg-[#12161c]/70 shadow-sm px-5 py-3 flex flex-col group hover:scale-[1.01] hover:bg-white/90 dark:hover:bg-neo-surface/90 transition-all cursor-pointer";
+                tr.onclick = () => abrirModalDescripcion(t.id);
+
                 tr.innerHTML = `
-                    <div class="flex items-center gap-3 flex-1 min-w-0">
-                        <div class="w-8 h-8 rounded-full bg-white dark:bg-neo-surface border border-gray-200 dark:border-neo-border flex items-center justify-center text-gray-700 dark:text-neo-text shrink-0">
-                            <span class="material-symbols-outlined text-[16px]" data-icon="${icon}">${icon}</span>
+                    <div class="flex items-center justify-between gap-3 w-full">
+                        <div class="flex items-center gap-3 flex-1 min-w-0">
+                            <div class="w-9 h-9 rounded-full bg-white/80 dark:bg-neo-bg border border-gray-200 dark:border-neo-border flex items-center justify-center text-gray-700 dark:text-neo-text shrink-0">
+                                <span class="material-symbols-outlined text-[18px]" data-icon="${icon}">${icon}</span>
+                            </div>
+                            <div class="flex-1 min-w-0 pr-1">
+                                <h4 class="font-sans text-sm font-semibold text-gray-950 dark:text-white leading-tight truncate">${t.concepto}</h4>
+                                <span class="font-sans text-[10px] text-gray-500 dark:text-neo-text-dim block truncate">${timeString}</span>
+                            </div>
                         </div>
-                        <div class="flex-1 min-w-0 pr-1">
-                            <h4 class="font-sans text-sm font-medium text-gray-900 dark:text-white leading-tight truncate">${t.concepto}</h4>
-                            <span class="font-sans text-[10px] text-gray-500 dark:text-neo-text-dim block truncate">${timeString}</span>
+                        <div class="flex items-center shrink-0 gap-2">
+                            <div class="flex gap-4 text-right">
+                                <div class="min-w-[70px] flex justify-end items-baseline gap-[2px]">
+                                    <span class="text-[11px] font-bold text-red-500 dark:text-neo-danger opacity-80 font-sans">-$</span>
+                                    <span class="font-sans text-sm font-bold text-red-600 dark:text-neo-danger">${t.cantidad.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                </div>
+                                <div class="min-w-[85px] flex justify-end items-baseline gap-[2px]">
+                                    <span class="text-[11px] font-medium text-gray-500 dark:text-neo-text-dim font-sans">$</span>
+                                    <span class="font-sans text-sm font-medium text-gray-700 dark:text-neo-text">${t.saldoDisponible.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                                </div>
+                            </div>
+                            <button onclick="event.stopPropagation(); eliminarRegistro('${t.id}')" class="btn-eliminar text-gray-300 hover:text-red-500 dark:text-neo-border dark:hover:text-neo-danger transition-all p-1 flex items-center justify-center rounded-full bg-gray-100 dark:bg-neo-bg/50" title="Eliminar registro">
+                                <span class="material-symbols-outlined text-[17px]">close</span>
+                            </button>
                         </div>
                     </div>
-                    <div class="flex items-center shrink-0 gap-2">
-                        <div class="text-right">
-                            <p class="font-sans text-sm font-bold text-red-600 dark:text-neo-danger">
-                                -$${t.cantidad.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                            </p>
-                            <p class="font-sans text-sm font-medium text-gray-700 dark:text-neo-text">
-                                $${t.saldoDisponible.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}
-                            </p>
-                        </div>
-                        <button onclick="eliminarRegistro('${t.id}')" class="btn-eliminar text-gray-300 hover:text-red-500 dark:text-neo-border dark:hover:text-neo-danger transition-all p-1 flex items-center justify-center rounded" title="Eliminar registro">
-                            <span class="material-symbols-outlined text-[18px]">close</span>
-                        </button>
-                    </div>
+                    ${bloqueDescripcion}
                 `;
                 listaTransacciones.appendChild(tr);
             });
         }
 
+        // --- FASE C: Lógica del Gestor de Cuentas ---
+
+        function abrirModalCuentas() {
+            renderizarListaCuentas();
+            volverAListaCuentas(); // Asegura mostrar la vista de lista primero
+            modalCuentas.classList.remove('opacity-0', 'pointer-events-none');
+            modalCuentasContent.classList.remove('translate-y-full', 'sm:scale-95');
+        }
+
+        function cerrarModalCuentas() {
+            modalCuentas.classList.add('opacity-0', 'pointer-events-none');
+            modalCuentasContent.classList.add('translate-y-full', 'sm:scale-95');
+        }
+
+        function renderizarListaCuentas() {
+            listaCuentasContainer.innerHTML = '';
+            
+            estadoGlobal.cuentas.forEach(cuenta => {
+                const saldo = calcularSaldoDeCuenta(cuenta);
+                const isActive = cuenta.id === estadoGlobal.cuenta_activa_id;
+                
+                const div = document.createElement('div');
+                div.className = `p-3 rounded-xl border transition-all cursor-pointer flex justify-between items-center ${isActive ? 'bg-emerald-50 dark:bg-[#00ff88]/10 border-emerald-200 dark:border-[#00ff88]/30' : 'bg-gray-50 dark:bg-neo-bg border-gray-200 dark:border-neo-border hover:bg-gray-100 dark:hover:bg-white/[0.02]'}`;
+                
+                div.innerHTML = `
+                    <div class="flex-1 min-w-0" onclick="seleccionarCuenta('${cuenta.id}')">
+                        <h4 class="font-sans text-sm font-bold ${isActive ? 'text-emerald-700 dark:text-[#00ff88]' : 'text-gray-900 dark:text-white'} truncate">${cuenta.nombre}</h4>
+                        <p class="font-sans text-xs text-gray-500 dark:text-neo-text-dim mt-0.5">Saldo: $${saldo.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</p>
+                    </div>
+                    <button onclick="abrirFormularioCuenta('${cuenta.id}'); event.stopPropagation();" class="p-2 text-gray-400 hover:text-emerald-500 dark:hover:text-[#00ff88] transition-colors rounded-full shrink-0" title="Editar cuenta">
+                        <span class="material-symbols-outlined text-[18px]">edit</span>
+                    </button>
+                `;
+                listaCuentasContainer.appendChild(div);
+            });
+        }
+
+        function seleccionarCuenta(id) {
+            estadoGlobal.cuenta_activa_id = id;
+            recalcularYRenderizar();
+            cerrarModalCuentas();
+        }
+
+        // Navegación dentro del Modal
+        function volverAListaCuentas() {
+            vistaListaCuentas.classList.remove('-translate-x-full');
+            vistaFormCuenta.classList.add('translate-x-full');
+        }
+
+        function abrirFormularioCuenta(idParaEditar = null) {
+            if (idParaEditar) {
+                const cuenta = estadoGlobal.cuentas.find(c => c.id === idParaEditar);
+                tituloFormCuenta.textContent = "Editar Cuenta";
+                editCuentaId.value = cuenta.id;
+                editNombre.value = cuenta.nombre;
+                editMonto.value = cuenta.monto_inicial;
+                zonaPeligroCuenta.classList.remove('hidden'); // Mostrar botón de eliminar
+            } else {
+                tituloFormCuenta.textContent = "Nueva Cuenta";
+                editCuentaId.value = "";
+                editNombre.value = "";
+                editMonto.value = "";
+                zonaPeligroCuenta.classList.add('hidden'); // Ocultar botón eliminar si es nueva
+            }
+            
+            vistaListaCuentas.classList.add('-translate-x-full');
+            vistaFormCuenta.classList.remove('translate-x-full');
+        }
+
+        function guardarCuenta() {
+            const id = editCuentaId.value;
+            const nuevoNombre = editNombre.value.trim();
+            const nuevoMonto = parseFloat(editMonto.value);
+
+            if (!nuevoNombre || isNaN(nuevoMonto) || nuevoMonto < 0) {
+                alert("Por favor ingresa un nombre y un fondo inicial válidos.");
+                return;
+            }
+
+            if (id) {
+                // Editar existente
+                const cuenta = estadoGlobal.cuentas.find(c => c.id === id);
+                cuenta.nombre = nuevoNombre;
+                cuenta.monto_inicial = nuevoMonto;
+            } else {
+                // Crear nueva
+                const nuevaCuenta = {
+                    id: "cta_" + Date.now().toString(),
+                    nombre: nuevoNombre,
+                    monto_inicial: nuevoMonto,
+                    transacciones: []
+                };
+                estadoGlobal.cuentas.push(nuevaCuenta);
+                estadoGlobal.cuenta_activa_id = nuevaCuenta.id; // Auto seleccionar la nueva
+            }
+            
+            recalcularYRenderizar();
+            volverAListaCuentas();
+            renderizarListaCuentas(); // Actualizar la lista en el modal por si el usuario decide quedarse ahí
+        }
+
+        function eliminarCuentaActualForm() {
+            const id = editCuentaId.value;
+            
+            if (estadoGlobal.cuentas.length <= 1) {
+                alert("No puedes eliminar la única cuenta que tienes. Puedes editarla o vaciar sus transacciones.");
+                return;
+            }
+
+            if (confirm("⚠️ ¿Estás seguro de que deseas eliminar TODA la cuenta y su historial? Esta acción es irreversible.")) {
+                estadoGlobal.cuentas = estadoGlobal.cuentas.filter(c => c.id !== id);
+                
+                // Si borramos la cuenta que estábamos viendo, saltar a la primera disponible
+                if (estadoGlobal.cuenta_activa_id === id) {
+                    estadoGlobal.cuenta_activa_id = estadoGlobal.cuentas[0].id;
+                }
+                
+                recalcularYRenderizar();
+                volverAListaCuentas();
+                renderizarListaCuentas();
+            }
+        }
+
+        btnAjustes.addEventListener('click', (e) => {
+            e.stopPropagation();
+            abrirModalCuentas();
+        });
+
+        // ------------------------------------------
+
+        // Funciones de Transacciones y UI
         window.eliminarRegistro = function(idTransaccion) {
             if (confirm("¿Estás seguro de eliminar este gasto? El saldo se recalculará automáticamente.")) {
                 const cuentaActiva = getCuentaActiva();
@@ -286,6 +525,33 @@
                 recalcularYRenderizar();
             }
         };
+
+        function abrirModalDescripcion(idTransaccion) {
+            const cuentaActiva = getCuentaActiva();
+            transaccionActivaDesc = cuentaActiva.transacciones.find(t => t.id === idTransaccion);
+            if (!transaccionActivaDesc) return;
+
+            editDescripcionTexto.value = transaccionActivaDesc.descripcion || '';
+            
+            modalDescripcion.classList.remove('opacity-0', 'pointer-events-none');
+            modalDescripcionContent.classList.remove('translate-y-full', 'sm:scale-95');
+        }
+
+        function cerrarModalDescripcion() {
+            modalDescripcion.classList.add('opacity-0', 'pointer-events-none');
+            modalDescripcionContent.classList.add('translate-y-full', 'sm:scale-95');
+            transaccionActivaDesc = null;
+        }
+
+        btnCerrarDescripcion.addEventListener('click', cerrarModalDescripcion);
+
+        btnGuardarDescripcion.addEventListener('click', () => {
+            if (transaccionActivaDesc) {
+                transaccionActivaDesc.descripcion = editDescripcionTexto.value.trim();
+                recalcularYRenderizar();
+                cerrarModalDescripcion();
+            }
+        });
 
         form.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -305,7 +571,8 @@
                 id: Date.now().toString(),
                 concepto: conceptoInput.value.trim(),
                 cantidad: cantidad,
-                fecha: fechaInput.value
+                fecha: fechaInput.value,
+                descripcion: "" 
             };
 
             cuentaActiva.transacciones.push(nuevoGasto);
@@ -315,55 +582,6 @@
             cantidadInput.value = '';
             setFechaActual();
             conceptoInput.blur(); 
-        });
-
-        function abrirModal() {
-            const cuenta = getCuentaActiva();
-            editNombre.value = cuenta.nombre;
-            editMonto.value = cuenta.monto_inicial;
-            
-            modalAjustes.classList.remove('opacity-0', 'pointer-events-none');
-            modalAjustesContent.classList.remove('scale-95');
-            modalAjustesContent.classList.add('scale-100');
-        }
-
-        function cerrarModal() {
-            modalAjustes.classList.add('opacity-0', 'pointer-events-none');
-            modalAjustesContent.classList.remove('scale-100');
-            modalAjustesContent.classList.add('scale-95');
-        }
-
-        btnAjustes.addEventListener('click', (e) => {
-            e.stopPropagation();
-            abrirModal();
-        });
-        
-        btnCerrarAjustes.addEventListener('click', cerrarModal);
-
-        btnGuardarAjustes.addEventListener('click', () => {
-            const cuenta = getCuentaActiva();
-            const nuevoNombre = editNombre.value.trim();
-            const nuevoMonto = parseFloat(editMonto.value);
-
-            if (!nuevoNombre || isNaN(nuevoMonto) || nuevoMonto < 0) {
-                alert("Por favor ingresa un nombre y un fondo inicial válidos.");
-                return;
-            }
-
-            cuenta.nombre = nuevoNombre;
-            cuenta.monto_inicial = nuevoMonto;
-            
-            recalcularYRenderizar();
-            cerrarModal();
-        });
-
-        btnReiniciarCuenta.addEventListener('click', () => {
-            if (confirm("⚠️ ¿Estás seguro de que deseas eliminar TODAS las transacciones de esta cuenta? Esta acción no se puede deshacer.")) {
-                const cuenta = getCuentaActiva();
-                cuenta.transacciones = [];
-                recalcularYRenderizar();
-                cerrarModal();
-            }
         });
 
         btnCaptura.addEventListener('click', (e) => {
@@ -378,7 +596,10 @@
         });
 
         document.addEventListener('click', (e) => {
-            if (panelIngreso.classList.contains('oculto-captura') && !modalAjustesContent.contains(e.target)) {
+            if (panelIngreso.classList.contains('oculto-captura') && 
+               !modalCuentasContent.contains(e.target) &&
+               !modalDescripcionContent.contains(e.target)) {
+                
                 panelIngreso.classList.remove('oculto-captura');
                 barraControl.classList.remove('oculto-captura');
                 
