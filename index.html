@@ -8,7 +8,7 @@
     <meta name="theme-color" content="#0a0c10" media="(prefers-color-scheme: dark)"/>
     <meta name="theme-color" content="#f9fafb" media="(prefers-color-scheme: light)"/>
     
-    <title>Cuentas Claras - Fase C</title>
+    <title>Cuentas Claras - Final</title>
     
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&display=swap" rel="stylesheet"/>
@@ -82,20 +82,26 @@
     </header>
 
     <main class="flex-1 px-6 w-full max-w-md mx-auto z-10 relative pt-4 pb-32">
-        <div class="flex justify-between items-end mb-4 border-b border-gray-200 dark:border-neo-border pb-3 px-2">
-            <div class="flex-1 min-w-0 pr-4">
-                <div class="flex items-center gap-2 mb-1">
-                    <h2 class="font-sans text-[10px] uppercase tracking-wider text-gray-500 dark:text-neo-text-dim truncate cursor-pointer" id="tituloCuenta">Cuenta Principal</h2>
-                    <button id="btnAjustes" class="text-gray-400 hover:text-emerald-500 dark:hover:text-[#00ff88] transition-colors flex items-center justify-center" title="Gestionar Cuentas">
-                        <span class="material-symbols-outlined text-[14px]">expand_more</span>
-                    </button>
-                </div>
-                <h3 class="font-serif text-[28px] leading-tight font-bold text-gray-900 dark:text-white truncate flex items-baseline gap-1" id="montoBase">
-                </h3>
+        
+        <div class="mb-5 px-2">
+            <div class="flex items-center gap-2 mb-1">
+                <h2 class="font-sans text-[10px] uppercase tracking-wider text-gray-500 dark:text-neo-text-dim truncate cursor-pointer" id="tituloCuenta">Cuenta Principal</h2>
+                <button id="btnAjustes" class="text-gray-400 hover:text-emerald-500 dark:hover:text-[#00ff88] transition-colors flex items-center justify-center" title="Gestionar Cuentas">
+                    <span class="material-symbols-outlined text-[14px]">expand_more</span>
+                </button>
             </div>
-            <div class="flex gap-4 text-right shrink-0 pr-8">
-                <div class="text-[10px] text-gray-500 dark:text-neo-text-dim uppercase tracking-wider font-semibold min-w-[70px]">Cantidad</div>
-                <div class="text-[10px] text-gray-500 dark:text-neo-text-dim uppercase tracking-wider font-semibold min-w-[85px]">Saldo Disp.</div>
+            <h3 class="font-serif text-[32px] leading-tight font-bold text-gray-900 dark:text-white flex items-baseline gap-1" id="montoBase">
+            </h3>
+        </div>
+        
+        <div class="flex items-center justify-between px-5 pb-2 mb-3 border-b border-gray-200 dark:border-neo-border">
+            <div class="text-[10px] text-gray-500 dark:text-neo-text-dim uppercase tracking-wider font-semibold">Movimientos</div>
+            <div class="flex items-center shrink-0 gap-2">
+                <div class="flex gap-4 text-right">
+                    <div class="text-[10px] text-gray-500 dark:text-neo-text-dim uppercase tracking-wider font-semibold min-w-[70px]">Cantidad</div>
+                    <div class="text-[10px] text-gray-500 dark:text-neo-text-dim uppercase tracking-wider font-semibold min-w-[85px]">Saldo Disp.</div>
+                </div>
+                <div class="w-[25px] opacity-0 pointer-events-none"></div>
             </div>
         </div>
         
@@ -151,7 +157,7 @@
                 </div>
                 
                 <div id="listaCuentasContainer" class="flex flex-col gap-2 max-h-60 overflow-y-auto mb-4 pr-1">
-                    </div>
+                </div>
                 
                 <button onclick="abrirFormularioCuenta(null)" class="w-full h-12 border border-dashed border-gray-300 dark:border-neo-border rounded-lg text-gray-600 dark:text-neo-text-dim hover:text-emerald-500 dark:hover:text-[#00ff88] hover:border-emerald-500 dark:hover:border-[#00ff88] font-bold transition-colors flex items-center justify-center gap-2">
                     <span class="material-symbols-outlined text-[20px]">add</span>
@@ -194,8 +200,8 @@
         </div>
     </div>
 
-    <div id="modalDescripcion" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 px-4">
-        <div class="bg-white dark:bg-neo-surface w-full max-w-md sm:rounded-2xl rounded-t-2xl border border-gray-200 dark:border-neo-border p-6 pb-12 sm:pb-6 shadow-2xl transform translate-y-full sm:translate-y-0 sm:scale-95 transition-transform duration-300" id="modalDescripcionContent">
+    <div id="modalDescripcion" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 px-4">
+        <div class="bg-white dark:bg-neo-surface w-full max-w-md rounded-2xl border border-gray-200 dark:border-neo-border p-6 shadow-2xl transform scale-95 transition-transform duration-300" id="modalDescripcionContent">
             <div class="flex items-center justify-between mb-4 text-gray-900 dark:text-white">
                 <h3 class="text-lg font-bold flex items-center gap-2">
                     <span class="material-symbols-outlined text-[20px]">edit_note</span>
@@ -230,7 +236,6 @@
         const panelIngreso = document.getElementById('panelIngreso');
         const barraControl = document.getElementById('barraControl');
 
-        // Modal de Cuentas (Fase C)
         const modalCuentas = document.getElementById('modalCuentas');
         const modalCuentasContent = document.getElementById('modalCuentasContent');
         const vistaListaCuentas = document.getElementById('vistaListaCuentas');
@@ -244,7 +249,6 @@
         const tituloFormCuenta = document.getElementById('tituloFormCuenta');
         const zonaPeligroCuenta = document.getElementById('zonaPeligroCuenta');
 
-        // Modal Descripción
         const modalDescripcion = document.getElementById('modalDescripcion');
         const modalDescripcionContent = document.getElementById('modalDescripcionContent');
         const btnCerrarDescripcion = document.getElementById('btnCerrarDescripcion');
@@ -259,7 +263,6 @@
             ]
         };
 
-        // Carga de datos
         const datosGuardados = localStorage.getItem('cuentas_claras_data');
         if (datosGuardados) {
             try {
@@ -273,7 +276,6 @@
             } catch (error) { console.error("Error al migrar datos."); }
         }
 
-        // Utilidades de Cálculo
         function getCuentaActiva() {
             return estadoGlobal.cuentas.find(c => c.id === estadoGlobal.cuenta_activa_id) || estadoGlobal.cuentas[0];
         }
@@ -288,11 +290,9 @@
             fechaInput.value = now.toISOString().slice(0, 16);
         }
 
-        // Renderizado Principal
         function recalcularYRenderizar() {
             const cuentaActiva = getCuentaActiva();
             
-            // Reparación por si se borró la cuenta activa
             if(estadoGlobal.cuenta_activa_id !== cuentaActiva.id) {
                 estadoGlobal.cuenta_activa_id = cuentaActiva.id;
             }
@@ -350,7 +350,6 @@
                 ` : '';
 
                 const tr = document.createElement('div');
-                // Corrección de pildora a rectángulo redondeado aplicado aquí
                 tr.className = "glass-panel rounded-2xl border border-gray-200 dark:border-neo-border bg-white/70 dark:bg-[#12161c]/70 shadow-sm px-5 py-3 flex flex-col group hover:scale-[1.01] hover:bg-white/90 dark:hover:bg-neo-surface/90 transition-all cursor-pointer";
                 tr.onclick = () => abrirModalDescripcion(t.id);
 
@@ -387,11 +386,9 @@
             });
         }
 
-        // --- FASE C: Lógica del Gestor de Cuentas ---
-
         function abrirModalCuentas() {
             renderizarListaCuentas();
-            volverAListaCuentas(); // Asegura mostrar la vista de lista primero
+            volverAListaCuentas();
             modalCuentas.classList.remove('opacity-0', 'pointer-events-none');
             modalCuentasContent.classList.remove('translate-y-full', 'sm:scale-95');
         }
@@ -430,7 +427,6 @@
             cerrarModalCuentas();
         }
 
-        // Navegación dentro del Modal
         function volverAListaCuentas() {
             vistaListaCuentas.classList.remove('-translate-x-full');
             vistaFormCuenta.classList.add('translate-x-full');
@@ -443,13 +439,13 @@
                 editCuentaId.value = cuenta.id;
                 editNombre.value = cuenta.nombre;
                 editMonto.value = cuenta.monto_inicial;
-                zonaPeligroCuenta.classList.remove('hidden'); // Mostrar botón de eliminar
+                zonaPeligroCuenta.classList.remove('hidden'); 
             } else {
                 tituloFormCuenta.textContent = "Nueva Cuenta";
                 editCuentaId.value = "";
                 editNombre.value = "";
                 editMonto.value = "";
-                zonaPeligroCuenta.classList.add('hidden'); // Ocultar botón eliminar si es nueva
+                zonaPeligroCuenta.classList.add('hidden'); 
             }
             
             vistaListaCuentas.classList.add('-translate-x-full');
@@ -467,12 +463,10 @@
             }
 
             if (id) {
-                // Editar existente
                 const cuenta = estadoGlobal.cuentas.find(c => c.id === id);
                 cuenta.nombre = nuevoNombre;
                 cuenta.monto_inicial = nuevoMonto;
             } else {
-                // Crear nueva
                 const nuevaCuenta = {
                     id: "cta_" + Date.now().toString(),
                     nombre: nuevoNombre,
@@ -480,12 +474,12 @@
                     transacciones: []
                 };
                 estadoGlobal.cuentas.push(nuevaCuenta);
-                estadoGlobal.cuenta_activa_id = nuevaCuenta.id; // Auto seleccionar la nueva
+                estadoGlobal.cuenta_activa_id = nuevaCuenta.id; 
             }
             
             recalcularYRenderizar();
             volverAListaCuentas();
-            renderizarListaCuentas(); // Actualizar la lista en el modal por si el usuario decide quedarse ahí
+            renderizarListaCuentas(); 
         }
 
         function eliminarCuentaActualForm() {
@@ -499,7 +493,6 @@
             if (confirm("⚠️ ¿Estás seguro de que deseas eliminar TODA la cuenta y su historial? Esta acción es irreversible.")) {
                 estadoGlobal.cuentas = estadoGlobal.cuentas.filter(c => c.id !== id);
                 
-                // Si borramos la cuenta que estábamos viendo, saltar a la primera disponible
                 if (estadoGlobal.cuenta_activa_id === id) {
                     estadoGlobal.cuenta_activa_id = estadoGlobal.cuentas[0].id;
                 }
@@ -515,9 +508,6 @@
             abrirModalCuentas();
         });
 
-        // ------------------------------------------
-
-        // Funciones de Transacciones y UI
         window.eliminarRegistro = function(idTransaccion) {
             if (confirm("¿Estás seguro de eliminar este gasto? El saldo se recalculará automáticamente.")) {
                 const cuentaActiva = getCuentaActiva();
@@ -526,6 +516,7 @@
             }
         };
 
+        // CORRECCIÓN 2: Animaciones del modal ajustadas a scale en lugar de slide para el centro de la pantalla
         function abrirModalDescripcion(idTransaccion) {
             const cuentaActiva = getCuentaActiva();
             transaccionActivaDesc = cuentaActiva.transacciones.find(t => t.id === idTransaccion);
@@ -534,12 +525,14 @@
             editDescripcionTexto.value = transaccionActivaDesc.descripcion || '';
             
             modalDescripcion.classList.remove('opacity-0', 'pointer-events-none');
-            modalDescripcionContent.classList.remove('translate-y-full', 'sm:scale-95');
+            modalDescripcionContent.classList.remove('scale-95');
+            modalDescripcionContent.classList.add('scale-100');
         }
 
         function cerrarModalDescripcion() {
             modalDescripcion.classList.add('opacity-0', 'pointer-events-none');
-            modalDescripcionContent.classList.add('translate-y-full', 'sm:scale-95');
+            modalDescripcionContent.classList.remove('scale-100');
+            modalDescripcionContent.classList.add('scale-95');
             transaccionActivaDesc = null;
         }
 
